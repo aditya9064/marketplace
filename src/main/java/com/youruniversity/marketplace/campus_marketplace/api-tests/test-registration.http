@@ -1,0 +1,47 @@
+# Test 1: Public Registration (should work without auth)
+POST http://localhost:8080/api/users/register
+Content-Type: application/json
+
+{
+  "email": "student@msoe.edu",
+  "password": "1234567890",
+  "name": "Test User"
+}
+
+###
+
+# Test 2: Protected Endpoint with Admin Auth
+POST http://localhost:8080/api/users/register
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4xMjM=
+
+{
+  "email": "another@msoe.edu",
+  "password": "0987654321",
+  "name": "Another User"
+}
+
+POST http://localhost:8080/api/users/localhost:8080/api/users/localhost:8080/api/users/register
+Content-Type: application/json
+
+{
+  "email": "student@gmail.com",
+  "password": "1234567890",
+  "name": "Invalid Email User"
+}
+
+POST http://localhost:8080/api/users/login
+Content-Type: application/json
+
+{
+  "email": "student@msoe.edu",
+  "password": "1234567890"
+}
+
+POST http://localhost:8080/api/users.login
+Content-Type: application/json
+
+{
+  "email": "student@msoe.edu",
+  "password": "wrongpassword"
+}
