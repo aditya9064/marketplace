@@ -1,6 +1,7 @@
 package com.youruniversity.marketplace.campus_marketplace;
-import jakarta.validation.constratins.*;
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
+import org.springframework.web.multipart.MultipartFile;
 
 public class CreateProductRequest{
     @NotBlank(message = "Title is required")
@@ -10,10 +11,13 @@ public class CreateProductRequest{
     @NotNull(message = "Price is required")
     @DecimalMin(value = "0.0", message = "Price must be greater than or equal to 0.0")
     private BigDecimal price;
+    
+    @NotNull(message = "At least one image is required")
+    private MultipartFile[] images;
     @NotNull(message = "Category is required")
-    private Category category;
+    private String category;
     @NotNull(message = "Condition is required")
-    private Condition condition;
+    private String condition;
     @NotBlank(message = "Location is required")
     private String location;
     @NotBlank(message = "Contact preference is required")
@@ -37,16 +41,16 @@ public class CreateProductRequest{
     public void setPrice(BigDecimal price){
         this.price = price;
     }
-    public Category getCategory(){
+    public String getCategory(){
         return category;
     }
-    public void setCategory(Category category){
+    public void setCategory(String category){
         this.category = category;
     }
-    public Condition getCondition(){
+    public String getCondition(){
         return condition;
     }
-    public void setCondition(Condition condition){
+    public void setCondition(String condition){
         this.condition = condition;
     }
     public String getLocation(){
@@ -60,5 +64,13 @@ public class CreateProductRequest{
     }
     public void setContactPreference(String contactPreference){
         this.contactPreference = contactPreference;
+    }
+
+    public MultipartFile[] getImages() {
+        return images;
+    }
+
+    public void setImages(MultipartFile[] images) {
+        this.images = images;
     }
 }

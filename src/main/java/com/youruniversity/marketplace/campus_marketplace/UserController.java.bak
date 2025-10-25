@@ -1,0 +1,145 @@
+package com.youruniversity.marketplace.campus_marketplace;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import java.util.Map;
+@RestController
+@RequestMapping("/users")
+public class UserController {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(UserController.class);
+
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private JwtUtils jwtUtils;
+    
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
+    public UserController() {
+        log.info("UserController initialized");
+    }
+    
+        @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
+        // Generate username from email if not provided
+        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+            String username = user.getEmail().split("@")[0];
+            user.setUsername(username);
+        }
+        
+        log.info("Received registration request for user: {}", user.getUsername());
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            log.warn("Username already exists: {}", user.getUsername());
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            log.warn("Email already exists: {}", user.getEmail());
+            return ResponseEntity.badRequest().body("Email already exists");
+        }
+        
+        String rawPassword = user.getPassword();
+        String encodedPassword = passwordEncoder.encode(rawPassword);
+        log.info("Password encoding - Raw length: {}, Encoded length: {}", 
+                rawPassword.length(), encodedPassword.length());
+        user.setPassword(encodedPassword);
+        
+        // Set default values for new user
+        user.setVerified(false);
+        user.setEmailVerified(false);
+        
+        User savedUser = userRepository.save(user);
+        
+        // Generate JWT token
+        String token = jwtUtils.generateToken(user.getEmail());
+        
+        log.info("Successfully registered user: {}", user.getUsername());
+        return ResponseEntity.ok().body(Map.of(
+            "token", token,
+            "user", savedUser
+        ));
+    }
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        log.info("Getting current user info for: {}", userDetails.getUsername());
+        
+        return userRepository.findByEmail(userDetails.getUsername())
+            .map(user -> {
+                Map<String, Object> userInfo = Map.of(
+                    "email", user.getEmail(),
+                    "username", user.getUsername(),
+                    "name", user.getName(),
+                    "verified", user.isVerified()
+                );
+                return ResponseEntity.ok(userInfo);
+            })
+            .orElse(ResponseEntity.status(401).build());
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
+        log.info("Login attempt for email: {}", loginRequest.getEmail());
+        
+        // Find user by email
+        var userOpt = userRepository.findByEmail(loginRequest.getEmail());
+        if (userOpt.isEmpty()) {
+            log.error("User not found with email: {}", loginRequest.getEmail());
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));
+        }
+
+        var user = userOpt.get();
+        String rawPassword = loginRequest.getPassword();
+        String storedPassword = user.getPassword();
+            
+        log.debug("Comparing passwords for user {}", user.getEmail());
+        boolean matches = passwordEncoder.matches(rawPassword, storedPassword);
+            
+        if (!matches) {
+            log.error("Password mismatch for user: {}", user.getEmail());
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));
+        }
+
+        // Generate JWT token
+        String token = jwtUtils.generateToken(user.getEmail());
+        log.info("Login successful for user: {}", user.getUsername());
+            
+        return ResponseEntity.ok().body(Map.of(
+            "token", token,
+            "user", Map.of(
+                "id", user.getId(),
+                "email", user.getEmail(),
+                "username", user.getUsername(),
+                "name", user.getName(),
+                "verified", user.isVerified()
+            )
+        ));
+                    
+                    return ResponseEntity.ok().body(Map.of(
+                        "token", token,
+                        "user", Map.of(
+                            "id", user.getId(),
+                            "email", user.getEmail(),
+                            "username", user.getUsername(),
+                            "name", user.getName(),
+                            "verified", user.isVerified()
+                        )
+                    ));
+                })
+                .orElseGet(() -> {
+                    log.error("Login failed for email: {}", loginRequest.getEmail());
+                    return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));
+                });
+        } catch (Exception e) {
+            log.error("Login error for email {}: {}", loginRequest.getEmail(), e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("message", "An error occurred during login"));
+        }
+        }
+        
+        log.warn("Login failed for email: {}", loginRequest.getEmail());
+        return ResponseEntity.badRequest().body(Map.of("message", "Invalid email or password"));
+    }
+    
+}

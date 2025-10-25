@@ -4,45 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class ProductResponse {
-    // Inner class for user data transfer
-    public static class UserDTO {
-        private Long id;
-        private String username;
-        private String name;
-        private String email;
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-    }
     private Long id;
     private String title;
     private String description;
@@ -50,8 +11,6 @@ public class ProductResponse {
     private String condition;
     private String category;
     private String location;
-    private String contactPreference;
-    private boolean available;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private UserDTO seller;
@@ -64,7 +23,6 @@ public class ProductResponse {
     // Constructor with all fields
     public ProductResponse(Long id, String title, String description, Double price,
                          String condition, String category, String location,
-                         String contactPreference, boolean available,
                          LocalDateTime createdAt, LocalDateTime updatedAt,
                          UserDTO seller, List<String> imageUrls) {
         this.id = id;
@@ -74,8 +32,6 @@ public class ProductResponse {
         this.condition = condition;
         this.category = category;
         this.location = location;
-        this.contactPreference = contactPreference;
-        this.available = available;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.seller = seller;
@@ -139,12 +95,12 @@ public class ProductResponse {
         this.location = location;
     }
 
-    public LocalDateTime getCreatedDate() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdAt = createdDate;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public LocalDateTime getUpdatedAt() {
@@ -153,22 +109,6 @@ public class ProductResponse {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public String getContactPreference() {
-        return contactPreference;
-    }
-
-    public void setContactPreference(String contactPreference) {
-        this.contactPreference = contactPreference;
-    }
-
-    public boolean isAvailable() {
-        return available;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
     }
 
     public UserDTO getSeller() {

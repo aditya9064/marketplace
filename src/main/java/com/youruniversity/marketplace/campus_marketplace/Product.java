@@ -1,116 +1,166 @@
 package com.youruniversity.marketplace.campus_marketplace;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
+import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
-public class Product{
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(min = 3, max = 100)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @NotBlank
+    @Size(min = 10, max = 1000)
     private String description;
 
-    @Column(nullable = false)
-    private BigDecimal price;
+    @NotNull
+    @Positive
+    private Double price;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Category category;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Condition condition;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 100)
     private String location;
 
-    @Column(name = "contact_preference")
+    @NotBlank
+    @Size(max = 50)
     private String contactPreference;
 
-    @Column(name = "created_date")
+    @Column(nullable = false)
     private LocalDateTime createdDate;
 
-    @Column(nullable = false)
     private boolean available = true;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", nullable = false)
-    private User seller;    
-}
+    private User seller;
 
-public Product(){
-}
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImage> images = new ArrayList<>();
 
-public Long getId(){
-    return id;
-}
-public void setId(Long id){
-    this.id = id;
-}
-public String getTitle(){
-    return title;
-}
-public void setTitle(String title){
-    this.title = title;
-}
-public String getDescription(){
-    return description;
-}
-public void setDescription(String description){
-    this.description = description;
-}
-public BigDecimal getPrice(){
-    return price;
-}
-public void setPrice(BigDecimal price){
-    this.price = price;
-}
-public Category getCategory(){
-    return category;
-}
-public void setCategory(Category category){
-    this.category = category;
-}
-public Condition getCondition(){
-    return condition;
-}
-public void setCondition(Condition condition){
-    this.condition = condition;
-}
-public String getLocation(){
-    return location;
-}
-public void setLocation(String location){
-    this.location = location;
-}
-public String getContactPreference(){
-    return contactPreference;
-}
-public void setContactPreference(String contactPreference){
-    this.contactPreference = contactPreference;
-}
-public LocalDateTime getCreatedDate(){
-    return createdDate;
-}
-public void setCreatedDate(LocalDateTime createdDate){
-    this.createdDate = createdDate;
-}
-public boolean isAvailable(){
-    return available;
-}
-public void setAvailable(boolean available){
-    this.available = available;
-}
-public User getSeller(){
-    return seller;
-}
-public void setSeller(User seller){
-    this.seller = seller;
+    // Default constructor
+    public Product() {
+    }
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public Condition getCondition() {
+        return condition;
+    }
+
+    public void setCondition(Condition condition) {
+        this.condition = condition;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getContactPreference() {
+        return contactPreference;
+    }
+
+    public void setContactPreference(String contactPreference) {
+        this.contactPreference = contactPreference;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+    public User getSeller() {
+        return seller;
+    }
+
+    public void setSeller(User seller) {
+        this.seller = seller;
+    }
+
+    public List<ProductImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ProductImage> images) {
+        this.images = images;
+    }
+
+    public void addImage(ProductImage image) {
+        images.add(image);
+        image.setProduct(this);
+    }
+
+    public void removeImage(ProductImage image) {
+        images.remove(image);
+        image.setProduct(null);
+    }
 }
